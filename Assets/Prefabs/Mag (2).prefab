@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6061583705811288299}
   - component: {fileID: 8551456014354052937}
   - component: {fileID: -1723774460436631566}
+  - component: {fileID: -2871313604317373248}
   m_Layer: 0
   m_Name: Mag (2)
   m_TagString: Untagged
@@ -110,3 +111,16 @@ MonoBehaviour:
     _statDescriptors:
     - _statName: ammo capacity
       _statValue: 30
+--- !u!114 &-2871313604317373248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 711007536295590292}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0589db7adb47214898fa547720002a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _rarity: 1

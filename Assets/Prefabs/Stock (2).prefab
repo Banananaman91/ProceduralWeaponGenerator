@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 2946818387109568908}
   - component: {fileID: 2276493211477090638}
   - component: {fileID: 7491669752310604785}
+  - component: {fileID: -3794430407421102337}
   m_Layer: 0
   m_Name: Stock (2)
   m_TagString: Untagged
@@ -110,3 +111,16 @@ MonoBehaviour:
     _statDescriptors:
     - _statName: recoil
       _statValue: -5
+--- !u!114 &-3794430407421102337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4753996298919743916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0589db7adb47214898fa547720002a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _rarity: 1
