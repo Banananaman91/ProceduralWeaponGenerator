@@ -8,7 +8,6 @@ namespace WeaponGenerator.WeaponAssetStats
 
         public Stats Stats
         {
-            get => _stats;
             set => _stats = value;
         }
     }
