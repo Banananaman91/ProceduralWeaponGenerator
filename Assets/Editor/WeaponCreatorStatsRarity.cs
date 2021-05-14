@@ -24,10 +24,10 @@ namespace Editor
 #pragma warning restore 0649
 
         //Wizard create window
-        [MenuItem("Assets/Create/Weapon Generator/Weapon Assets With Stats & Rarity", false, 1)]
+        [MenuItem("Assets/Create/Weapon Generator/Weapon Assets With Stats and Rarity", false, 1)]
         private static void CreateWizard()
         {
-            DisplayWizard<WeaponCreatorStatsRarity>("Create Gun Collection With Stats", "Create");
+            DisplayWizard<WeaponCreatorStatsRarity>("Create Gun Collection With Stats & Rarity", "Create");
         }
 
         #region WeaponValidate
