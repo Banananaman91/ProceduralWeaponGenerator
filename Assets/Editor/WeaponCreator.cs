@@ -18,7 +18,8 @@ namespace Editor
         [SerializeField] private Weapon _weapon = new Weapon();
 
         private List<string> _combinations = new List<string>();
-        Dictionary<int, List<string>> tags = new Dictionary<int, List<string>>();
+        private Dictionary<int, List<string>> tags => WeaponCreatorMethods.ListBuilder(_weapon);
+        private List<string> AllCombos => WeaponCreatorMethods.GetCombos(tags);
         #pragma warning restore 0649
 
         //Wizard create window
@@ -45,10 +46,10 @@ namespace Editor
             }
             
             //remove previous collection
-            tags.Clear();
+            //tags.Clear();
             
             //rebuild collection to generate new combinations
-            ListBuilder();
+            //ListBuilder();
 
             //regenerate all combinations
             _combinations = AllCombos;
@@ -154,39 +155,6 @@ namespace Editor
             //If made it this far, all validation checks have passed
             errorString = "";
             isValid = true;
-        }
-        #endregion
-
-        #region ComboGenerator
-        private void ListBuilder()
-        {
-            //Build dictionary of items, each entry corresponds to each weapon part with the string forming each index to be used when generating combinations
-            //e.g. weapon part one may contain 2 pieces, so string will = "01". When generating combinations it will first use item 0, then item 1, to generate combinations of indexes
-            for (var i = 0; i < _weapon.Parts.Count; i++)
-            {
-                var str = new List<string>();
-                for (var j = 0; j < _weapon.Parts[i].VariantPieces.Count; j++)
-                {
-                    str.Add(j.ToString());
-                }
-                tags.Add(i, str);
-            }
-        }
-
-        private List<string> AllCombos => GetCombos(tags);
-
-        //recursive function to generate all combinations
-        private static List<string> GetCombos(IEnumerable<KeyValuePair<int, List<string>>> remainingTags)
-        {
-            if (remainingTags.Count() == 1)
-            {
-                return remainingTags.First().Value;
-            }
-
-            var current = remainingTags.First();
-            var combos = GetCombos(remainingTags.Where(tag => tag.Key != current.Key));
-
-            return (from tagPart in current.Value from combo in combos select tagPart + combo).ToList();
         }
         #endregion
 

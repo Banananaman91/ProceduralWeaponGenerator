@@ -19,7 +19,8 @@ namespace Editor
         [SerializeField] private Weapon _weapon = new Weapon();
 
         private List<string> _combinations = new List<string>();
-        Dictionary<int, List<string>> tags = new Dictionary<int, List<string>>();
+        private Dictionary<int, List<string>> tags => WeaponCreatorMethods.ListBuilder(_weapon);
+        private List<string> AllCombos => WeaponCreatorMethods.GetCombos(tags);
 #pragma warning restore 0649
 
         //Wizard create window
@@ -46,10 +47,10 @@ namespace Editor
             }
             
             //remove previous collection
-            tags.Clear();
+            //tags.Clear();
             
             //rebuild collection to generate new combinations
-            ListBuilder();
+            //ListBuilder();
 
             //regenerate all combinations
             _combinations = AllCombos;
@@ -175,38 +176,6 @@ namespace Editor
         }
         #endregion
 
-        #region ComboGenerator
-        private void ListBuilder()
-        {
-            //Build dictionary of items, each entry corresponds to each weapon part with the string forming each index to be used when generating combinations
-            //e.g. weapon part one may contain 2 pieces, so string will = "01". When generating combinations it will first use item 0, then item 1, to generate combinations of indexes
-            for (var i = 0; i < _weapon.Parts.Count; i++)
-            {
-                var str = new List<string>();
-                for (var j = 0; j < _weapon.Parts[i].VariantPieces.Count; j++)
-                {
-                    str.Add(j.ToString());
-                }
-                tags.Add(i, str);
-            }
-        }
-
-        private List<string> AllCombos => GetCombos(tags);
-
-        //recursive function to generate all combinations
-        private static List<string> GetCombos(IEnumerable<KeyValuePair<int, List<string>>> remainingTags)
-        {
-            if (remainingTags.Count() == 1)
-            {
-                return remainingTags.First().Value;
-            }
-
-            var current = remainingTags.First();
-            var combos = GetCombos(remainingTags.Where(tag => tag.Key != current.Key));
-
-            return (from tagPart in current.Value from combo in combos select tagPart + combo).ToList();
-        }
-        #endregion
 
         public void OnWizardCreate()
         {
@@ -300,7 +269,7 @@ namespace Editor
                 
                 //Generate Weapon Rarity
                 var weaponRarity = parent.GetComponent<WeaponRarityLevel>();
-                weaponRarity.Rarity = GenerateWeaponRarity(parts);
+                weaponRarity.Rarity = WeaponCreatorMethods.GenerateWeaponRarity(parts, _rarityCalculationType);
 
                 //Destroy all of the child objects as they are no longer needed
                 for (var i = parts.Count - 1; i > 0; i--)
@@ -325,33 +294,6 @@ namespace Editor
                 //delete previous instantiation as it is no longer needed
                 DestroyImmediate(parent);
             }
-        }
-
-        private WeaponRarity GenerateWeaponRarity(List<GameObject> parts)
-        {
-            var weaponRarity = WeaponRarity.Common;
-            var numbers = new int[parts.Count];
-            
-            for (var i = 0; i < parts.Count; i++)
-            {
-                numbers[i] = (int) parts[i].GetComponent<WeaponRarityLevel>().Rarity;
-            }
-
-            switch (_rarityCalculationType)
-            {
-                case RarityCalculationType.MostCommon:
-                    weaponRarity = (WeaponRarity) numbers.GroupBy(item => item).OrderByDescending(g => g.Count()).Select(g => g.Key).First();
-                    break;
-                case RarityCalculationType.Middle:
-                    Array.Sort(numbers.ToArray());
-                    var middle = Mathf.RoundToInt(numbers.Length / 2);
-                    weaponRarity = (WeaponRarity) numbers[middle];
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            return weaponRarity;
         }
     }
 }
