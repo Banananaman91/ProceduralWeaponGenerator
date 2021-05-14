@@ -10,9 +10,9 @@ using WeaponGenerator.WeaponAssetStats;
 
 namespace Editor
 {
-    public class WeaponCreatorRarity : ScriptableWizard
+    public class WeaponCreatorStatsRarity : ScriptableWizard
     {
-        #pragma warning disable 0649
+                #pragma warning disable 0649
         [SerializeField] private string _fileName;
         [SerializeField] private string _saveFolder;
         [SerializeField] private RarityCalculationType _rarityCalculationType;
@@ -23,10 +23,10 @@ namespace Editor
 #pragma warning restore 0649
 
         //Wizard create window
-        [MenuItem("Assets/Create/Weapon Generator/Weapon Assets With Rarity", false, 1)]
+        [MenuItem("Assets/Create/Weapon Generator/Weapon Assets With Stats & Rarity", false, 1)]
         private static void CreateWizard()
         {
-            DisplayWizard<WeaponCreatorRarity>("Create Gun Collection With Stats", "Create");
+            DisplayWizard<WeaponCreatorStatsRarity>("Create Gun Collection With Stats", "Create");
         }
 
         #region WeaponValidate
@@ -99,6 +99,23 @@ namespace Editor
             
             //validate all of the weapon pieces contain the WeaponStatsContribution component
             var partsCount = 0;
+            var mainStats = new List<WeaponStatsContribution>();
+            foreach (var t1 in _weapon.Parts.SelectMany(t => t.VariantPieces))
+            {
+                partsCount++;
+                var weaponMono = t1.GetComponent<WeaponStatsContribution>();
+                if (weaponMono) mainStats.Add(weaponMono);
+            }
+
+            if (mainStats.Count != partsCount)
+            {
+                errorString = "All weapon pieces and variants must contain an object with WeaponStatsContribution component";
+                isValid = false;
+                return;
+            }
+            
+            //validate all of the weapon pieces contain the WeaponStatsContribution component
+            partsCount = 0;
             var mainRarity = new List<WeaponRarityLevel>();
             foreach (var t1 in _weapon.Parts.SelectMany(t => t.VariantPieces))
             {
@@ -298,6 +315,10 @@ namespace Editor
                 var meshFile = "/" + _fileName + "_" + g + "_M" + ".asset";
                 AssetDatabase.CreateAsset(finalMesh, path + meshFile);
                 
+                //Generate Weapon Stats
+                var weaponStat = parent.AddComponent<WeaponStats>();
+                weaponStat.Stats = GenerateWeaponStats(parts);
+                
                 //Generate Weapon Rarity
                 var weaponRarity = parent.GetComponent<WeaponRarityLevel>();
                 weaponRarity.Rarity = GenerateWeaponRarity(parts);
@@ -309,6 +330,8 @@ namespace Editor
                     {
                         var rarityComp = parts[i].GetComponent<WeaponRarityLevel>();
                         DestroyImmediate(rarityComp);
+                        var statComp = parts[i].GetComponent<WeaponStatsContribution>();
+                        DestroyImmediate(statComp);
                         continue;
                     }
                     DestroyImmediate(parts[i].gameObject);
@@ -316,6 +339,7 @@ namespace Editor
                 
                 //Destroy WeaponMainBody component as it is no longer needed
                 DestroyImmediate(WeaponMono);
+                DestroyImmediate(parent.GetComponent<WeaponStatsContribution>());
 
                 //create file name for path
                 var file = "/" + _fileName + "_" + g + ".prefab";
@@ -352,6 +376,36 @@ namespace Editor
             }
 
             return weaponRarity;
+        }
+        
+        private Stats GenerateWeaponStats(List<GameObject> parts)
+        {
+            var weaponStats = new Stats();
+            for (var i = 0; i < parts.Count; i++)
+            {
+                var partStat = parts[i].GetComponent<WeaponStatsContribution>().WeaponStats;
+
+                for (var j = 0; j < partStat.StatDescriptors.Count; j++)
+                {
+                    if (weaponStats.StatDescriptors.Count == 0)
+                    {
+                        weaponStats.StatDescriptors.Add(partStat.StatDescriptors[i]);
+                    }
+                    else
+                    {
+                        var partAdded = false;
+                        foreach (var t in weaponStats.StatDescriptors.Where(t => String.Equals(t.StatName, partStat.StatDescriptors[j].StatName, StringComparison.CurrentCultureIgnoreCase)))
+                        {
+                            t.StatValue += partStat.StatDescriptors[j].StatValue;
+                            partAdded = true;
+                            break;
+                        }
+                        if (!partAdded) weaponStats.StatDescriptors.Add(partStat.StatDescriptors[j]);
+                    }
+                }
+            }
+
+            return weaponStats;
         }
     }
 }
