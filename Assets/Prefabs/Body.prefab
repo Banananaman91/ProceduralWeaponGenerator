@@ -103,6 +103,7 @@ GameObject:
   - component: {fileID: 7754778529088842003}
   - component: {fileID: 7754778529088842002}
   - component: {fileID: 7754778529088842001}
+  - component: {fileID: 316153444696656907}
   m_Layer: 0
   m_Name: Body
   m_TagString: Untagged
@@ -203,4 +204,25 @@ MonoBehaviour:
   - {fileID: 7754778528547680405}
   - {fileID: 7754778529072838253}
   - {fileID: 7754778528965074466}
-  _attachments: []
+--- !u!114 &316153444696656907
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7754778529088842000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2157a7e3e58ac534aa74d2d67bb0b101, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _weaponStats:
+    _statDescriptors:
+    - _statName: Accuracy
+      _statValue: 2
+    - _statName: Recoil
+      _statValue: 10
+    - _statName: Damage
+      _statValue: 3
+    - _statName: Ammo Capacity
+      _statValue: 0

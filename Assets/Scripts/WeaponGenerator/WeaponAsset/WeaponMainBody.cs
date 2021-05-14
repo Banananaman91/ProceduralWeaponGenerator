@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace WeaponGenerator
+namespace WeaponGenerator.WeaponAsset
 {
     public class WeaponMainBody : MonoBehaviour
     {

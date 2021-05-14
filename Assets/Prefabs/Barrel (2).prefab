@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2370576284321359040}
   - component: {fileID: 6477650596168514207}
   - component: {fileID: 2596030587908031220}
+  - component: {fileID: -8548343662597161776}
   m_Layer: 0
   m_Name: Barrel (2)
   m_TagString: Untagged
@@ -93,3 +94,21 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-8548343662597161776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 461216200811852970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2157a7e3e58ac534aa74d2d67bb0b101, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _weaponStats:
+    _statDescriptors:
+    - _statName: Damage
+      _statValue: 3
+    - _statName: accuracy
+      _statValue: 6
