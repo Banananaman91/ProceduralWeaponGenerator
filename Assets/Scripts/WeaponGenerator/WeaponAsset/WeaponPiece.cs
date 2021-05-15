@@ -8,8 +8,8 @@ namespace WeaponGenerator.WeaponAsset
     public class WeaponPiece
     {
     #pragma warning disable 0649
-        [SerializeField] private String _variantName;
-        [SerializeField] private List<GameObject> _variantPieces;
+        [SerializeField] private String _variantName = "";
+        [SerializeField] private List<GameObject> _variantPieces = new List<GameObject>();
         [SerializeField] private bool _detachable;
     #pragma warning restore 0649
         public string VariantName

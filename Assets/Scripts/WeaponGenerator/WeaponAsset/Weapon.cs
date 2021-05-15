@@ -9,7 +9,7 @@ namespace WeaponGenerator.WeaponAsset
     public class Weapon
     {
 #pragma warning disable 0649
-        [SerializeField] private List<WeaponPiece> _parts;
+        [SerializeField] private List<WeaponPiece> _parts = new List<WeaponPiece>();
     
         public List<WeaponPiece> Parts
         {
