@@ -126,14 +126,14 @@ namespace Editor
             //Set field of view to default
             _previewRenderUtility.camera.fieldOfView = 60f;
             //Access scene directional lights and setup
-            //TODO: this doesn't actually functionally work or make a difference, improve lighting
-            _previewRenderUtility.lights[0].transform.rotation = FindDirectionalLights()[0].transform.rotation;
-            _previewRenderUtility.lights[0].intensity = 1;
-            for (int i = 1; i < _previewRenderUtility.lights.Length; ++i)
-            {
-                _previewRenderUtility.lights[i].intensity = 1;
-                _previewRenderUtility.lights[i].transform.rotation = new Quaternion(0f, 180f, 0f, 0f);
-            }
+            // //TODO: this doesn't actually functionally work or make a difference, improve lighting
+            // _previewRenderUtility.lights[0].transform.rotation = FindDirectionalLights()[0].transform.rotation;
+            // _previewRenderUtility.lights[0].intensity = 1;
+            // for (int i = 1; i < _previewRenderUtility.lights.Length; ++i)
+            // {
+            //     _previewRenderUtility.lights[i].intensity = 1;
+            //     _previewRenderUtility.lights[i].transform.rotation = new Quaternion(0f, 180f, 0f, 0f);
+            // }
         }
 
         //finds directional lights. Not even sure this actually finds lights? This script doesn't exist in the scene
@@ -146,11 +146,14 @@ namespace Editor
             if (_comboCount == 0) return;
             //Initialize render utility with default settings if we have none
             if (_previewRenderUtility == null) InitializeRenderUtility();
+            //Check preview lights are enabled
+            for (int i = 0; i < _previewRenderUtility.lights.Length; i++)
+            {
+                if (i == 0) _previewRenderUtility.lights[0].transform.rotation = FindDirectionalLights()[0].transform.rotation;
+                if (!_previewRenderUtility.lights[i].enabled) _previewRenderUtility.lights[i].enabled = true;
+            }
             //find target, if we have no object then look at zero
             var targetPos = _object ? _object.position : Vector3.zero;
-            //apply camera transformations with distance away from object
- 
-            _previewRenderUtility.camera.transform.LookAt(targetPos);
             //get screen boundaries. We use half the width as the split view covers half of the preview by default.
             var boundaries = new Rect(0, 0, position.width / 2, position.height);
             //Begin preview and create mesh to draw as texture
@@ -175,6 +178,7 @@ namespace Editor
             _cameraRotate =
                 (PreviewCameraType) EditorGUILayout.EnumPopup(_cameraRotate, GUILayout.Width(100f));
 
+            //apply camera transformations with distance away from object
             switch (_cameraRotate)
             {
                 case PreviewCameraType.Top:
@@ -204,6 +208,8 @@ namespace Editor
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            //Ensure camera looks at target object
+            _previewRenderUtility.camera.transform.LookAt(targetPos);
 
             EditorGUILayout.LabelField("Value for next/previous weapon");
             _skipAmount = EditorGUILayout.IntField(_skipAmount,GUILayout.Width(100f));
