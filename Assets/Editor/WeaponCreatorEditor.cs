@@ -29,6 +29,9 @@ namespace Editor
         private PreviewRenderUtility _previewRenderUtility;
         private Transform _object;
         private float _backDistance = 10;
+
+        private PreviewCameraType _cameraRotate = PreviewCameraType.Right;
+        private int _skipAmount = 0;
 #pragma warning restore 0649
         
         //Wizard create window
@@ -40,20 +43,23 @@ namespace Editor
             window.Show();
         }
 
-        //Unity Editor Split View from Miguel12345 on Github
+        #region GUI
         EditorGUISplitView horizontalSplitView = new EditorGUISplitView (EditorGUISplitView.Direction.Horizontal);
         EditorGUISplitView verticalSplitView = new EditorGUISplitView (EditorGUISplitView.Direction.Vertical);
         
         private void OnGUI()
         {
             if (!focusedWindow && !mouseOverWindow) return;
-
+            
             horizontalSplitView.BeginSplitView ();
+            //Draw first GUI area for weapon preview
             DrawWeaponPreviewArea();
             horizontalSplitView.Split ();
             verticalSplitView.BeginSplitView ();
+            //Draw second GUI area for assembling weapon parts
             DrawWeaponPartsArea();
             verticalSplitView.Split ();
+            //Draw third GUI area for core weapon creation settings
             DrawSettingsArea();
             verticalSplitView.EndSplitView ();
             horizontalSplitView.EndSplitView ();
@@ -96,22 +102,31 @@ namespace Editor
 
         private void DrawWeaponPartsArea()
         {
+            //Create serialized property for weapon variable and display, including children
             GUILayout.Label("Number of unique combinations: " + _comboCount, EditorStyles.boldLabel);
             EditorWindow target = this;
             SerializedObject so = new SerializedObject(target);
             SerializedProperty weaponProperty = so.FindProperty("_weapon");
             EditorGUILayout.PropertyField(weaponProperty, true);
+            //ensure modifications to variables by user are applied
             so.ApplyModifiedProperties();
         }
 
         private void InitializeRenderUtility()
         {
+            //create render utility for weapon preview area
             _previewRenderUtility = new PreviewRenderUtility();
+            //Reset rotation
             _previewRenderUtility.camera.transform.rotation = Quaternion.Euler(0, 0, 0);
+            //Set background to skybox
             _previewRenderUtility.camera.clearFlags = CameraClearFlags.Skybox;
+            //Ensure clipping planes are suitable
             _previewRenderUtility.camera.nearClipPlane = 0.01f;
             _previewRenderUtility.camera.farClipPlane = 100f;
+            //Set field of view to default
             _previewRenderUtility.camera.fieldOfView = 60f;
+            //Access scene directional lights and setup
+            //TODO: this doesn't actually functionally work or make a difference, improve lighting
             _previewRenderUtility.lights[0].transform.rotation = FindDirectionalLights()[0].transform.rotation;
             _previewRenderUtility.lights[0].intensity = 1;
             for (int i = 1; i < _previewRenderUtility.lights.Length; ++i)
@@ -121,54 +136,87 @@ namespace Editor
             }
         }
 
+        //finds directional lights. Not even sure this actually finds lights? This script doesn't exist in the scene
         private Light[] FindDirectionalLights() =>
             FindObjectsOfType<Light>().Where(light => light.type == LightType.Directional).ToArray();
 
         private void DrawWeaponPreviewArea()
         {
+            //If we have no combinations, don't draw
             if (_comboCount == 0) return;
+            //Initialize render utility with default settings if we have none
             if (_previewRenderUtility == null) InitializeRenderUtility();
+            //find target, if we have no object then look at zero
             var targetPos = _object ? _object.position : Vector3.zero;
-            _previewRenderUtility.camera.transform.position = targetPos;
-            _previewRenderUtility.camera.transform.Translate(new Vector3(0, 0, _backDistance));
+            //apply camera transformations with distance away from object
+ 
             _previewRenderUtility.camera.transform.LookAt(targetPos);
+            //get screen boundaries. We use half the width as the split view covers half of the preview by default.
             var boundaries = new Rect(0, 0, position.width / 2, position.height);
+            //Begin preview and create mesh to draw as texture
             _previewRenderUtility.BeginPreview(boundaries, GUIStyle.none);
             DrawPreviewMesh();
             var render = _previewRenderUtility.EndPreview();
             GUI.DrawTexture(new Rect(0, 0, boundaries.width, boundaries.height), render);
 
+            //Apply GUI components for preview area over the texture
             GUILayout.Label("Weapon Preview Area", EditorStyles.largeLabel);
 
             if (mouseOverWindow && Event.current.type == EventType.ScrollWheel)
             {
                 if (Event.current.delta.y > 0) _backDistance++;
-                else _backDistance--;
+                else if (Vector3.Distance(_previewRenderUtility.camera.transform.position, _object.transform.position) > 1) _backDistance--;
             }
             
+            //This check prevents crashing when parts is reduced back to zero
             if (_weapon.Parts.Count == 0) return;
 
-            if (GUILayout.Button("Rotate Right", GUILayout.Width(100f)))
-                _previewRenderUtility.camera.transform.RotateAround(targetPos, Vector3.up, Time.time);
-            if (GUILayout.Button("Rotate Left", GUILayout.Width(100f)))
-                _previewRenderUtility.camera.transform.RotateAround(targetPos, -Vector3.up, Time.time);
-            if (GUILayout.Button("Rotate Up", GUILayout.Width(100f)))
-                _previewRenderUtility.camera.transform.RotateAround(targetPos, Vector3.forward, Time.time);
-            if (GUILayout.Button("Rotate Down", GUILayout.Width(100f)))
-                _previewRenderUtility.camera.transform.RotateAround(targetPos, -Vector3.forward, Time.time);
-            
-            if (GUILayout.Button("Previous Skip 100", GUILayout.Width(120f))) _comboDisplay -= 100;
-            if (GUILayout.Button("Previous Skip 10", GUILayout.Width(120f))) _comboDisplay -= 10;
-            if (GUILayout.Button("Previous Weapon", GUILayout.Width(120f))) _comboDisplay--;
-            if (GUILayout.Button("Next Weapon", GUILayout.Width(120f))) _comboDisplay++;
-            if (GUILayout.Button("Next Skip 10", GUILayout.Width(120f))) _comboDisplay += 10;
-            if (GUILayout.Button("Next Skip 100", GUILayout.Width(120f))) _comboDisplay += 100;
+            EditorGUILayout.LabelField("Camera View");
+            _cameraRotate =
+                (PreviewCameraType) EditorGUILayout.EnumPopup(_cameraRotate, GUILayout.Width(100f));
+
+            switch (_cameraRotate)
+            {
+                case PreviewCameraType.Top:
+                    _previewRenderUtility.camera.transform.position = new Vector3(0, targetPos.y + _backDistance, 0);
+                    //_previewRenderUtility.camera.transform.Translate(new Vector3(0, _backDistance, 0));
+                    break;
+                case PreviewCameraType.Bottom:
+                    _previewRenderUtility.camera.transform.position = new Vector3(0, targetPos.y - _backDistance, 0);
+                    //_previewRenderUtility.camera.transform.Translate(new Vector3(0, -_backDistance, 0));
+                    break;
+                case PreviewCameraType.Left:
+                    _previewRenderUtility.camera.transform.position = new Vector3(targetPos.x - _backDistance, 0, 0);
+                    //_previewRenderUtility.camera.transform.Translate(new Vector3(-_backDistance, 0, 0));
+                    break;
+                case PreviewCameraType.Right:
+                    _previewRenderUtility.camera.transform.position = new Vector3(targetPos.x + _backDistance, 0, 0);
+                    //_previewRenderUtility.camera.transform.Translate(new Vector3(_backDistance, 0, 0));
+                    break;
+                case PreviewCameraType.Front:
+                    _previewRenderUtility.camera.transform.position = new Vector3(0, 0, targetPos.z - _backDistance);
+                    //_previewRenderUtility.camera.transform.Translate(new Vector3(0, 0, _backDistance));
+                    break;
+                case PreviewCameraType.Back:
+                    _previewRenderUtility.camera.transform.position = new Vector3(0, 0, targetPos.z + _backDistance);
+                    //_previewRenderUtility.camera.transform.Translate(new Vector3(0, 0, -_backDistance));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            EditorGUILayout.LabelField("Value for next/previous weapon");
+            _skipAmount = EditorGUILayout.IntField(_skipAmount,GUILayout.Width(100f));
+            if (GUILayout.Button("Previous Weapon", GUILayout.Width(120f))) _comboDisplay -= _skipAmount;
+            if (GUILayout.Button("Next Weapon", GUILayout.Width(120f))) _comboDisplay += _skipAmount;
         }
 
         private void DrawPreviewMesh()
         {
+            //Ensure combo display is reset when cycling through weapon preview combinations
             if (_comboDisplay > _comboCount - 1) _comboDisplay = 0;
             else if (_comboDisplay < 0) _comboDisplay = _comboCount - 1;
+            //This check prevents crashing when weapon parts are reduced back to zero
             if (_weapon.Parts.Count == 0) return;
             //split combination string into character array for use in indexing
             var idx = AllCombos[_comboDisplay].ToCharArray();
@@ -192,15 +240,24 @@ namespace Editor
             //get mesh filters of all objects
             var meshFilters = parts.Select(t => t.GetComponent<MeshFilter>()).ToList();
 
-            for (int i = 0; i < materials.Count; i++)
+            var weaponMono = parent.GetComponent<WeaponMainBody>();
+
+            for (var i = 0; i < materials.Count; i++)
             {
-                var meshMatrix = parts[i].transform.localToWorldMatrix;
-                _previewRenderUtility.DrawMesh(meshFilters[i].sharedMesh, meshMatrix, materials[i], 0);
+                // var meshMatrix = parts[i].transform.localToWorldMatrix;
+                // _previewRenderUtility.DrawMesh(meshFilters[i].sharedMesh, meshMatrix, materials[i], 0);
+
+                var trans = i == 0
+                    ? parts[i].transform
+                    : weaponMono.AttachmentPoints[i - 1].transform;
+                _previewRenderUtility.DrawMesh(meshFilters[i].sharedMesh, trans.position, parts[i].transform.localScale, parts[i].transform.rotation, materials[i], 0, null, trans, true);
             }
             _previewRenderUtility.camera.Render();
             _object = parent.transform;
         }
+        #endregion
 
+        #region WeaponCreatorValidation
         private void ValidateWeapon()
         {
                         //if the first weapon part has nothing added, inform user of what is needed
@@ -337,7 +394,9 @@ namespace Editor
             _errorString = "";
             _isValid = true;
         }
+        #endregion
 
+        #region WeaponCreator
         private void CreateWeapons()
         {
             //Don't continue if we don't have parts
@@ -476,9 +535,11 @@ namespace Editor
                 DestroyImmediate(parent);
             }
         }
+        #endregion
 
         private void OnDisable()
         {
+            //clean up render utility
             _previewRenderUtility?.Cleanup();
         }
     }
