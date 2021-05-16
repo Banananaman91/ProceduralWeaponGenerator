@@ -11,8 +11,8 @@ On your main body part, setup child transform objects for the attachment points 
 Name these transform objects to the parts name. The system will use this naming to display.
 On the WeaponMainBody component, attach these transforms to the parts list. The order of this will correspond to the order that your parts will be assigned.
 
-## WeaponStatsContributor
-When using the stats feature all weapon parts must contain a WeaponStatsContributor component. With this, simply fill out the stat types and values. These will all be added to the main weapon upon completion, where a new WeaponStats component will be added with all the compiled stats for that weapon based on the generated parts.
+## WeaponStatsContribution
+When using the stats feature all weapon parts must contain a WeaponStatsContribution component. With this, simply fill out the stat types and values. These will all be added to the main weapon upon completion, where a new WeaponStats component will be added with all the compiled stats for that weapon based on the generated parts.
 
 ## WeaponRarityLevel
 When using the rarity feature all weapon parts must contain a WeaponRarityLevel component. With this, simply select a rarity level for that weapon part.
@@ -40,6 +40,8 @@ Weapon > Parts > Variant Name is automatically filled on assignment of the weapo
 
 Weapon > Parts > Variant Pieces are all of the variations of each weapon part you wish to generate with. At least 1 is required per part.
 
+Weapon > Parts > Detachable allows all variants of this weapon part to remain separate. The weapon generator combines all parts into a singular mesh with materials, but will ignore parts set as detachable and instead keep them as children of the resulting prefab.
+
 The outputted weapons will generation combinations that consist of one variant from each weapon part.
 
 ## Weapon Creator Settings
@@ -50,7 +52,7 @@ Meshes for weapons will also generated under the same name with an additional _M
 
 Folder is the directory folder you want these weapons to save to. It will create the folder for you if required. The root of this will automatically start within your Assets folder. Providing a subfolder directory can be achieved by typing "/" e.g. Weapons/Guns will create a subfolder Guns inside of a folder Weapons.
 
-Toggle stats feature allows you to enable compilation of weapon stats if desired. Turning this on will require all weapon parts to contain a WeaponStatsContributor component.
+Toggle stats feature allows you to enable compilation of weapon stats if desired. Turning this on will require all weapon parts to contain a WeaponStatsContribution component.
 
 Toggle rarity feature allows you to enable complitation of weapon rarity if desired. Turning this on will require all weapon parts to contain a WeaponRarityLevel component.
 - Enabling rarity feature reveals a calculation type option. This option allows you to change how the compiled rarity type of the resulting weapon is calculated.
