@@ -149,7 +149,12 @@ namespace Editor
             //Check preview lights are enabled
             for (int i = 0; i < _previewRenderUtility.lights.Length; i++)
             {
-                if (i == 0) _previewRenderUtility.lights[0].transform.rotation = FindDirectionalLights()[0].transform.rotation;
+                if (i == 0)
+                {
+                    _previewRenderUtility.lights[0].transform.rotation = FindDirectionalLights()[0].transform.rotation;
+                    _previewRenderUtility.lights[0].color = FindDirectionalLights()[0].color;
+                    _previewRenderUtility.lights[0].intensity = FindDirectionalLights()[0].intensity;
+                }
                 if (!_previewRenderUtility.lights[i].enabled) _previewRenderUtility.lights[i].enabled = true;
             }
             //find target, if we have no object then look at zero
