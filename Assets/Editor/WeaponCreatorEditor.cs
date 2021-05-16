@@ -15,23 +15,21 @@ namespace Editor
 #pragma warning disable 0649
         private string _fileName;
         private string _saveFolder;
-        private RarityCalculationType _rarityCalculationType;
+        private string _errorString = "Error Display";
+        private RarityCalculationType _rarityCalculationType = RarityCalculationType.Middle;
+        private PreviewCameraType _cameraRotate = PreviewCameraType.Right;
         public Weapon _weapon = new Weapon();
         private bool _rarityToggle;
         private bool _statToggle;
-        private string _errorString = "Error Display";
         private bool _isValid;
-        private Dictionary<int, List<string>> tags => WeaponCreatorMethods.ListBuilder(_weapon);
-        private List<string> AllCombos => WeaponCreatorMethods.GetCombos(tags);
         private int _comboCount;
         private int _comboDisplay;
-
-        private PreviewRenderUtility _previewRenderUtility;
-        private Transform _object;
+        private int _skipAmount = 1;
         private float _backDistance = 10;
-
-        private PreviewCameraType _cameraRotate = PreviewCameraType.Right;
-        private int _skipAmount = 0;
+        private Transform _object;
+        private PreviewRenderUtility _previewRenderUtility;
+        private Dictionary<int, List<string>> tags => WeaponCreatorMethods.ListBuilder(_weapon);
+        private List<string> AllCombos => WeaponCreatorMethods.GetCombos(tags);
 #pragma warning restore 0649
         
         //Wizard create window
@@ -104,9 +102,9 @@ namespace Editor
         {
             //Create serialized property for weapon variable and display, including children
             GUILayout.Label("Number of unique combinations: " + _comboCount, EditorStyles.boldLabel);
-            EditorWindow target = this;
-            SerializedObject so = new SerializedObject(target);
-            SerializedProperty weaponProperty = so.FindProperty("_weapon");
+            var target = this;
+            var so = new SerializedObject(target);
+            var weaponProperty = so.FindProperty("_weapon");
             EditorGUILayout.PropertyField(weaponProperty, true);
             //ensure modifications to variables by user are applied
             so.ApplyModifiedProperties();
@@ -125,15 +123,6 @@ namespace Editor
             _previewRenderUtility.camera.farClipPlane = 100f;
             //Set field of view to default
             _previewRenderUtility.camera.fieldOfView = 60f;
-            //Access scene directional lights and setup
-            // //TODO: this doesn't actually functionally work or make a difference, improve lighting
-            // _previewRenderUtility.lights[0].transform.rotation = FindDirectionalLights()[0].transform.rotation;
-            // _previewRenderUtility.lights[0].intensity = 1;
-            // for (int i = 1; i < _previewRenderUtility.lights.Length; ++i)
-            // {
-            //     _previewRenderUtility.lights[i].intensity = 1;
-            //     _previewRenderUtility.lights[i].transform.rotation = new Quaternion(0f, 180f, 0f, 0f);
-            // }
         }
 
         //finds directional lights. Not even sure this actually finds lights? This script doesn't exist in the scene
@@ -188,27 +177,21 @@ namespace Editor
             {
                 case PreviewCameraType.Top:
                     _previewRenderUtility.camera.transform.position = new Vector3(0, targetPos.y + _backDistance, 0);
-                    //_previewRenderUtility.camera.transform.Translate(new Vector3(0, _backDistance, 0));
                     break;
                 case PreviewCameraType.Bottom:
                     _previewRenderUtility.camera.transform.position = new Vector3(0, targetPos.y - _backDistance, 0);
-                    //_previewRenderUtility.camera.transform.Translate(new Vector3(0, -_backDistance, 0));
                     break;
                 case PreviewCameraType.Left:
                     _previewRenderUtility.camera.transform.position = new Vector3(targetPos.x - _backDistance, 0, 0);
-                    //_previewRenderUtility.camera.transform.Translate(new Vector3(-_backDistance, 0, 0));
                     break;
                 case PreviewCameraType.Right:
                     _previewRenderUtility.camera.transform.position = new Vector3(targetPos.x + _backDistance, 0, 0);
-                    //_previewRenderUtility.camera.transform.Translate(new Vector3(_backDistance, 0, 0));
                     break;
                 case PreviewCameraType.Front:
                     _previewRenderUtility.camera.transform.position = new Vector3(0, 0, targetPos.z - _backDistance);
-                    //_previewRenderUtility.camera.transform.Translate(new Vector3(0, 0, _backDistance));
                     break;
                 case PreviewCameraType.Back:
                     _previewRenderUtility.camera.transform.position = new Vector3(0, 0, targetPos.z + _backDistance);
-                    //_previewRenderUtility.camera.transform.Translate(new Vector3(0, 0, -_backDistance));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -216,6 +199,7 @@ namespace Editor
             //Ensure camera looks at target object
             _previewRenderUtility.camera.transform.LookAt(targetPos);
 
+            //Skip through weapon previews
             EditorGUILayout.LabelField("Value for next/previous weapon");
             _skipAmount = EditorGUILayout.IntField(_skipAmount,GUILayout.Width(100f));
             if (GUILayout.Button("Previous Weapon", GUILayout.Width(120f))) _comboDisplay -= _skipAmount;
@@ -255,9 +239,6 @@ namespace Editor
 
             for (var i = 0; i < materials.Count; i++)
             {
-                // var meshMatrix = parts[i].transform.localToWorldMatrix;
-                // _previewRenderUtility.DrawMesh(meshFilters[i].sharedMesh, meshMatrix, materials[i], 0);
-
                 var trans = i == 0
                     ? parts[i].transform
                     : weaponMono.AttachmentPoints[i - 1].transform;
