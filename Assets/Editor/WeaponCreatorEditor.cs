@@ -17,7 +17,7 @@ namespace Editor
         private string _saveFolder;
         private string _errorString = "Error Display";
         private RarityCalculationType _rarityCalculationType = RarityCalculationType.Middle;
-        private PreviewCameraType _cameraRotate = PreviewCameraType.Right;
+        private CameraViewType _cameraViewRotate = CameraViewType.Right;
         public Weapon _weapon = new Weapon();
         private bool _rarityToggle;
         private bool _statToggle;
@@ -169,28 +169,28 @@ namespace Editor
             if (_weapon.Parts.Count == 0) return;
 
             EditorGUILayout.LabelField("Camera View");
-            _cameraRotate =
-                (PreviewCameraType) EditorGUILayout.EnumPopup(_cameraRotate, GUILayout.Width(100f));
+            _cameraViewRotate =
+                (CameraViewType) EditorGUILayout.EnumPopup(_cameraViewRotate, GUILayout.Width(100f));
 
             //apply camera transformations with distance away from object
-            switch (_cameraRotate)
+            switch (_cameraViewRotate)
             {
-                case PreviewCameraType.Top:
+                case CameraViewType.Top:
                     _previewRenderUtility.camera.transform.position = new Vector3(0, targetPos.y + _backDistance, 0);
                     break;
-                case PreviewCameraType.Bottom:
+                case CameraViewType.Bottom:
                     _previewRenderUtility.camera.transform.position = new Vector3(0, targetPos.y - _backDistance, 0);
                     break;
-                case PreviewCameraType.Left:
+                case CameraViewType.Left:
                     _previewRenderUtility.camera.transform.position = new Vector3(targetPos.x - _backDistance, 0, 0);
                     break;
-                case PreviewCameraType.Right:
+                case CameraViewType.Right:
                     _previewRenderUtility.camera.transform.position = new Vector3(targetPos.x + _backDistance, 0, 0);
                     break;
-                case PreviewCameraType.Front:
+                case CameraViewType.Front:
                     _previewRenderUtility.camera.transform.position = new Vector3(0, 0, targetPos.z - _backDistance);
                     break;
-                case PreviewCameraType.Back:
+                case CameraViewType.Back:
                     _previewRenderUtility.camera.transform.position = new Vector3(0, 0, targetPos.z + _backDistance);
                     break;
                 default:
@@ -215,13 +215,11 @@ namespace Editor
             if (_weapon.Parts.Count == 0) return;
             //split combination string into character array for use in indexing
             var idx = AllCombos[_comboDisplay].ToCharArray();
+
             var parts = idx.Select((t, i) => _weapon.Parts[i].VariantPieces[(int) Char.GetNumericValue(t)]).ToList();
-            GameObject parent = null;
+            
             //find the part with GunMainBody to use as parent object
-            foreach (var part in parts.Where(part => part.GetComponent<WeaponMainBody>()))
-            {
-                parent = part;
-            }
+            var parent = parts[0];
 
             //if no parent found, previous validation checks failed. Throw error for user.
             if (!parent)
@@ -230,15 +228,16 @@ namespace Editor
             }
 
             //Assign all object materials
-            var materials = parts.Select(t => t.GetComponent<MeshRenderer>().sharedMaterial).ToList();
+            var materials = parts.Select(t => t != null ? t.GetComponent<MeshRenderer>().sharedMaterial : null).ToList();
 
             //get mesh filters of all objects
-            var meshFilters = parts.Select(t => t.GetComponent<MeshFilter>()).ToList();
+            var meshFilters = parts.Select(t => t != null ? t.GetComponent<MeshFilter>() : null).ToList();
 
             var weaponMono = parent.GetComponent<WeaponMainBody>();
 
             for (var i = 0; i < materials.Count; i++)
             {
+                if (materials[i] == null || meshFilters[i] == null) continue;
                 var trans = i == 0
                     ? parts[i].transform
                     : weaponMono.AttachmentPoints[i - 1].transform;
@@ -405,21 +404,25 @@ namespace Editor
 
             //Don't continue if save window was closed without a path
             if (path.Length == 0) return;
+            
+            var destroyObject = new GameObject();
+            destroyObject.AddComponent<ToDestroy>();
+            destroyObject.AddComponent<MeshRenderer>();
+            destroyObject.GetComponent<MeshRenderer>().sharedMaterial =
+                _weapon.Parts[0].VariantPieces[0].GetComponent<MeshRenderer>().sharedMaterial;
+            destroyObject.AddComponent<MeshFilter>();
+            destroyObject.name = "Destroy Object";
 
             //Generate guns from all combinations
             for (var g = 0; g < AllCombos.Count; g++)
             {
-                GameObject parent = null;
                 //split combination string into character array for use in indexing
                 var idx = AllCombos[g].ToCharArray();
-                var parts = idx.Select((t, i) => (GameObject) PrefabUtility.InstantiatePrefab(_weapon.Parts[i].VariantPieces[(int) Char.GetNumericValue(t)])).ToList();
+                var parts = idx.Select((t, i) => _weapon.Parts[i].VariantPieces[(int) Char.GetNumericValue(t)] ? (GameObject) PrefabUtility.InstantiatePrefab(_weapon.Parts[i].VariantPieces[(int) Char.GetNumericValue(t)]) : Instantiate(destroyObject)).ToList();
                 //instantiate each part to be used in building the weapon
 
                 //find the part with GunMainBody to use as parent object
-                foreach (var part in parts.Where(part => part.GetComponent<WeaponMainBody>()))
-                {
-                    parent = part;
-                }
+                var parent = parts[0];
 
                 //if no parent found, previous validation checks failed. Throw error for user.
                 if (!parent)
@@ -433,7 +436,7 @@ namespace Editor
                 //Generate attachments
                 for (var i = 0; i < parts.Count; i++)
                 {
-                    if (parts[i] == parent) continue;
+                    if (!parts[i] || parts[i] == parent) continue;
                     //Set its transform position and child it to the weapons main body
                     parts[i].transform.parent = parent.transform;
                     parts[i].transform.position = WeaponMono.AttachmentPoints[i - 1].position;
@@ -450,13 +453,12 @@ namespace Editor
 
                 //Assign all object materials
                 var materials = parts.Where((t, i) => !_weapon.Parts[i].Detachable).Select(t => t.GetComponent<MeshRenderer>().sharedMaterial).ToList();
-
+                
                 parent.GetComponent<MeshRenderer>().sharedMaterials = new Material[materials.Count];
                 parent.GetComponent<MeshRenderer>().sharedMaterials = materials.ToArray();
 
                 //get mesh filters of all objects
                 var meshFilters = parts.Where((t, i) => !_weapon.Parts[i].Detachable).Select(t => t.GetComponent<MeshFilter>()).ToList();
-                
                 //Generate all combine instances for meshes
                 var combineInstance = new CombineInstance[meshFilters.Count];
                 for (var i = 0; i < meshFilters.Count; i++)
@@ -496,6 +498,11 @@ namespace Editor
                 {
                     if (_weapon.Parts[i].Detachable)
                     {
+                        if (parts[i].GetComponent<ToDestroy>())
+                        {
+                            DestroyImmediate(parts[i]);
+                            continue;
+                        }
                         if (_rarityToggle)
                         {
                             var rarityComp = parts[i].GetComponent<WeaponRarityLevel>();
@@ -526,6 +533,7 @@ namespace Editor
                 //delete previous instantiation as it is no longer needed
                 DestroyImmediate(parent);
             }
+            DestroyImmediate(destroyObject);
         }
         #endregion
 

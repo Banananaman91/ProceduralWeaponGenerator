@@ -1,6 +1,6 @@
 ﻿namespace Editor
 {
-    public enum PreviewCameraType
+    public enum CameraViewType
     {
         Top,
         Bottom,
