@@ -26,6 +26,8 @@ namespace Editor
         private int _comboDisplay;
         private int _skipAmount = 1;
         private float _backDistance = 10;
+        private Vector3 _lightRotation;
+        private Vector3 _cameraPosition = new Vector3(10, 0, 0);
         private Transform _object;
         private PreviewRenderUtility _previewRenderUtility;
         private Dictionary<int, List<string>> tags => WeaponCreatorMethods.ListBuilder(_weapon);
@@ -135,17 +137,11 @@ namespace Editor
             if (_comboCount == 0) return;
             //Initialize render utility with default settings if we have none
             if (_previewRenderUtility == null) InitializeRenderUtility();
-            //Check preview lights are enabled
-            for (int i = 0; i < _previewRenderUtility.lights.Length; i++)
-            {
-                if (i == 0)
-                {
-                    _previewRenderUtility.lights[0].transform.rotation = FindDirectionalLights()[0].transform.rotation;
-                    _previewRenderUtility.lights[0].color = FindDirectionalLights()[0].color;
-                    _previewRenderUtility.lights[0].intensity = FindDirectionalLights()[0].intensity;
-                }
-                if (!_previewRenderUtility.lights[i].enabled) _previewRenderUtility.lights[i].enabled = true;
-            }
+            //Adjust lighting
+            _previewRenderUtility.lights[0].transform.rotation = Quaternion.Euler(_lightRotation);
+            _previewRenderUtility.lights[0].color = FindDirectionalLights()[0].color;
+            _previewRenderUtility.lights[0].intensity = FindDirectionalLights()[0].intensity;
+
             //find target, if we have no object then look at zero
             var targetPos = _object ? _object.position : Vector3.zero;
             //get screen boundaries. We use half the width as the split view covers half of the preview by default.
@@ -161,43 +157,22 @@ namespace Editor
 
             if (mouseOverWindow && Event.current.type == EventType.ScrollWheel)
             {
-                if (Event.current.delta.y > 0) _backDistance++;
-                else if (Vector3.Distance(_previewRenderUtility.camera.transform.position, _object.transform.position) > 1) _backDistance--;
+                if (Event.current.delta.y > 0) _previewRenderUtility.camera.transform.Translate(0, 0, 1, Space.Self);
+                else _previewRenderUtility.camera.transform.Translate(0, 0, -1, Space.Self);
+                _cameraPosition = _previewRenderUtility.camera.transform.position;
             }
             
             //This check prevents crashing when parts is reduced back to zero
             if (_weapon.Parts.Count == 0) return;
 
-            EditorGUILayout.LabelField("Camera View");
-            _cameraViewRotate =
-                (CameraViewType) EditorGUILayout.EnumPopup(_cameraViewRotate, GUILayout.Width(100f));
-
-            //apply camera transformations with distance away from object
-            switch (_cameraViewRotate)
-            {
-                case CameraViewType.Top:
-                    _previewRenderUtility.camera.transform.position = new Vector3(0, targetPos.y + _backDistance, 0);
-                    break;
-                case CameraViewType.Bottom:
-                    _previewRenderUtility.camera.transform.position = new Vector3(0, targetPos.y - _backDistance, 0);
-                    break;
-                case CameraViewType.Left:
-                    _previewRenderUtility.camera.transform.position = new Vector3(targetPos.x - _backDistance, 0, 0);
-                    break;
-                case CameraViewType.Right:
-                    _previewRenderUtility.camera.transform.position = new Vector3(targetPos.x + _backDistance, 0, 0);
-                    break;
-                case CameraViewType.Front:
-                    _previewRenderUtility.camera.transform.position = new Vector3(0, 0, targetPos.z - _backDistance);
-                    break;
-                case CameraViewType.Back:
-                    _previewRenderUtility.camera.transform.position = new Vector3(0, 0, targetPos.z + _backDistance);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            _cameraPosition = EditorGUILayout.Vector3Field("Camera Position", _cameraPosition, GUILayout.Width(300f));
+            //Adjust camera position
+            _previewRenderUtility.camera.transform.position = _cameraPosition;
             //Ensure camera looks at target object
             _previewRenderUtility.camera.transform.LookAt(targetPos);
+            
+            //Light controls
+            _lightRotation = EditorGUILayout.Vector3Field("Light Rotation", _lightRotation, GUILayout.Width(300f));
 
             //Skip through weapon previews
             EditorGUILayout.LabelField("Value for next/previous weapon");
