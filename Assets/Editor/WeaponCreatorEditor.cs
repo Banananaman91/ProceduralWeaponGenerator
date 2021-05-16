@@ -17,7 +17,6 @@ namespace Editor
         private string _saveFolder;
         private string _errorString = "Error Display";
         private RarityCalculationType _rarityCalculationType = RarityCalculationType.Middle;
-        private CameraViewType _cameraViewRotate = CameraViewType.Right;
         public Weapon _weapon = new Weapon();
         private bool _rarityToggle;
         private bool _statToggle;
@@ -25,7 +24,8 @@ namespace Editor
         private int _comboCount;
         private int _comboDisplay;
         private int _skipAmount = 1;
-        private float _backDistance = 10;
+        private float _lightIntensity = 1f;
+        private Color _lightColor = Color.white;
         private Vector3 _lightRotation;
         private Vector3 _cameraPosition = new Vector3(10, 0, 0);
         private Transform _object;
@@ -139,8 +139,8 @@ namespace Editor
             if (_previewRenderUtility == null) InitializeRenderUtility();
             //Adjust lighting
             _previewRenderUtility.lights[0].transform.rotation = Quaternion.Euler(_lightRotation);
-            _previewRenderUtility.lights[0].color = FindDirectionalLights()[0].color;
-            _previewRenderUtility.lights[0].intensity = FindDirectionalLights()[0].intensity;
+            _previewRenderUtility.lights[0].color = _lightColor;
+            _previewRenderUtility.lights[0].intensity = _lightIntensity;
 
             //find target, if we have no object then look at zero
             var targetPos = _object ? _object.position : Vector3.zero;
@@ -152,6 +152,7 @@ namespace Editor
             var render = _previewRenderUtility.EndPreview();
             GUI.DrawTexture(new Rect(0, 0, boundaries.width, boundaries.height), render);
 
+            
             //Apply GUI components for preview area over the texture
             GUILayout.Label("Weapon Preview Area", EditorStyles.largeLabel);
 
@@ -165,6 +166,7 @@ namespace Editor
             //This check prevents crashing when parts is reduced back to zero
             if (_weapon.Parts.Count == 0) return;
 
+            
             _cameraPosition = EditorGUILayout.Vector3Field("Camera Position", _cameraPosition, GUILayout.Width(300f));
             //Adjust camera position
             _previewRenderUtility.camera.transform.position = _cameraPosition;
@@ -173,7 +175,11 @@ namespace Editor
             
             //Light controls
             _lightRotation = EditorGUILayout.Vector3Field("Light Rotation", _lightRotation, GUILayout.Width(300f));
-
+            GUILayout.Label("Light Intensity");
+            _lightIntensity = EditorGUILayout.FloatField(_lightIntensity, GUILayout.Width(50f));
+            GUILayout.Label("Light Colour");
+            _lightColor = EditorGUILayout.ColorField(_lightColor, GUILayout.Width(100f));
+            
             //Skip through weapon previews
             EditorGUILayout.LabelField("Value for next/previous weapon");
             _skipAmount = EditorGUILayout.IntField(_skipAmount,GUILayout.Width(100f));
@@ -266,6 +272,7 @@ namespace Editor
                 var mainStats = new List<WeaponStatsContribution>();
                 foreach (var t1 in _weapon.Parts.SelectMany(t => t.VariantPieces))
                 {
+                    if (!t1) continue;
                     partsCount++;
                     var weaponMono = t1.GetComponent<WeaponStatsContribution>();
                     if (weaponMono) mainStats.Add(weaponMono);
@@ -287,6 +294,7 @@ namespace Editor
                 var mainRarity = new List<WeaponRarityLevel>();
                 foreach (var t1 in _weapon.Parts.SelectMany(t => t.VariantPieces))
                 {
+                    if (!t1) continue;
                     partsCount++;
                     var weaponMono = t1.GetComponent<WeaponRarityLevel>();
                     if (weaponMono) mainRarity.Add(weaponMono);

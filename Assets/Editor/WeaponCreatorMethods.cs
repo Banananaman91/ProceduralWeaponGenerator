@@ -48,6 +48,7 @@ namespace Editor
             var weaponStats = new Stats();
             for (var i = 0; i < parts.Count; i++)
             {
+                if (!parts[i]) continue;
                 var partStat = parts[i].GetComponent<WeaponStatsContribution>().WeaponStats;
 
                 for (var j = 0; j < partStat.StatDescriptors.Count; j++)
@@ -77,12 +78,7 @@ namespace Editor
             RarityCalculationType rarityCalculationType)
         {
             WeaponRarity weaponRarity;
-            var numbers = new int[parts.Count];
-
-            for (var i = 0; i < parts.Count; i++)
-            {
-                numbers[i] = (int) parts[i].GetComponent<WeaponRarityLevel>().Rarity;
-            }
+            var numbers = (from t in parts where t select (int) t.GetComponent<WeaponRarityLevel>().Rarity).ToList();
 
             switch (rarityCalculationType)
             {
@@ -92,7 +88,7 @@ namespace Editor
                     break;
                 case RarityCalculationType.Middle:
                     Array.Sort(numbers.ToArray());
-                    var middle = Mathf.RoundToInt(numbers.Length / 2);
+                    var middle = Mathf.RoundToInt(numbers.Count / 2);
                     weaponRarity = (WeaponRarity) numbers[middle];
                     break;
                 default:
