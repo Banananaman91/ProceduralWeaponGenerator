@@ -67,6 +67,7 @@ namespace Editor
             
             //reset create button validity
             _isValid = false;
+            _comboCount = 0;
             
             //if no weapon parts, don't continue
             if (_weapon.Parts == null || _weapon.Parts.Count == 0) return;
@@ -205,18 +206,31 @@ namespace Editor
             //if no parent found, previous validation checks failed. Throw error for user.
             if (!parent)
             {
-                throw new NullReferenceException("One weapon part requires WeaponMainBody script to be set up to create parent object");
+                return;
             }
 
-            //Assign all object materials
-            var materials = parts.Select(t => t != null ? t.GetComponent<MeshRenderer>().sharedMaterial : null).ToList();
+            Material[] materials = new Material[parts.Count];
+            MeshFilter[] meshFilters = new MeshFilter[parts.Count];
 
-            //get mesh filters of all objects
-            var meshFilters = parts.Select(t => t != null ? t.GetComponent<MeshFilter>() : null).ToList();
+            for (int i = 0; i < parts.Count; i++)
+            {
+                if (parts[i] == null) continue;
+                if (parts[i].GetComponent<MeshFilter>() == null) continue;
+                if (parts[i].GetComponent<MeshRenderer>() == null) continue;
+
+                materials[i] = parts[i].GetComponent<MeshRenderer>().sharedMaterial;
+                meshFilters[i] = parts[i].GetComponent<MeshFilter>();
+            }
+
+            // //Assign all object materials
+            // var materials = parts.Select(t => t != null ? t.GetComponent<MeshRenderer>().sharedMaterial : null).ToList();
+            //
+            // //get mesh filters of all objects
+            // var meshFilters = parts.Select(t => t != null ? t.GetComponent<MeshFilter>() : null).ToList();
 
             var weaponMono = parent.GetComponent<WeaponMainBody>();
 
-            for (var i = 0; i < materials.Count; i++)
+            for (var i = 0; i < materials.Length; i++)
             {
                 if (materials[i] == null || meshFilters[i] == null) continue;
                 var trans = i == 0
@@ -391,7 +405,7 @@ namespace Editor
             var destroyObject = new GameObject();
             destroyObject.AddComponent<ToDestroy>();
             destroyObject.AddComponent<MeshRenderer>();
-            destroyObject.GetComponent<MeshRenderer>().sharedMaterial =
+            if (_weapon.Parts[0].VariantPieces[0].GetComponent<MeshRenderer>()) destroyObject.GetComponent<MeshRenderer>().sharedMaterial =
                 _weapon.Parts[0].VariantPieces[0].GetComponent<MeshRenderer>().sharedMaterial;
             destroyObject.AddComponent<MeshFilter>();
             destroyObject.name = "Destroy Object";
@@ -435,13 +449,25 @@ namespace Editor
                 }
 
                 //Assign all object materials
-                var materials = parts.Where((t, i) => !_weapon.Parts[i].Detachable).Select(t => t.GetComponent<MeshRenderer>().sharedMaterial).ToList();
-                
+                //var materials = parts.Where((t, i) => !_weapon.Parts[i].Detachable).Select(t => t.GetComponent<MeshRenderer>().sharedMaterial).ToList();
+                List<Material> materials = new List<Material>();
+                List<MeshFilter> meshFilters = new List<MeshFilter>();
+                for (int i = 0; i < parts.Count; i++)
+                {
+                    if (!parts[i].GetComponent<MeshRenderer>()) continue;
+                    if (_weapon.Parts[i].Detachable) continue;
+                    materials.Add(parts[i].GetComponent<MeshRenderer>().sharedMaterial);
+                    if (!parts[i].GetComponent<MeshFilter>()) continue;
+                    meshFilters.Add(parts[i].GetComponent<MeshFilter>());
+                }
+
+                if (!parent.GetComponent<MeshRenderer>()) parent.AddComponent<MeshRenderer>();
                 parent.GetComponent<MeshRenderer>().sharedMaterials = new Material[materials.Count];
                 parent.GetComponent<MeshRenderer>().sharedMaterials = materials.ToArray();
 
                 //get mesh filters of all objects
-                var meshFilters = parts.Where((t, i) => !_weapon.Parts[i].Detachable).Select(t => t.GetComponent<MeshFilter>()).ToList();
+                //var meshFilters = parts.Where((t, i) => !_weapon.Parts[i].Detachable).Select(t => t.GetComponent<MeshFilter>()).ToList();
+
                 //Generate all combine instances for meshes
                 var combineInstance = new CombineInstance[meshFilters.Count];
                 for (var i = 0; i < meshFilters.Count; i++)
@@ -453,6 +479,7 @@ namespace Editor
                 //Generate final combine mesh and apply to main object
                 var finalMesh = new Mesh();
                 finalMesh.CombineMeshes(combineInstance, false);
+                if (!parent.GetComponent<MeshFilter>()) parent.AddComponent<MeshFilter>();
                 parent.GetComponent<MeshFilter>().sharedMesh = finalMesh;
 
                 //Create folder if it doesn't exist
