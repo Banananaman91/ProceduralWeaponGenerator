@@ -547,6 +547,12 @@ namespace Editor
                         }
                     }
 
+                    foreach (Transform child in parts[i].transform)
+                    {
+                        var cgo = Instantiate(child.gameObject, child.transform.position, child.rotation);
+                        cgo.transform.SetParent(parent.transform);
+                    }
+
                     DestroyImmediate(parts[i].gameObject);
                 }
                 
