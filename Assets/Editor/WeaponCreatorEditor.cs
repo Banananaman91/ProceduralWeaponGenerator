@@ -10,6 +10,7 @@ using WeaponGenerator.WeaponAssetStats;
 
 namespace Editor
 {
+    [ExecuteAlways]
     public class WeaponCreatorEditor : EditorWindow
     {
 #pragma warning disable 0649
@@ -26,12 +27,14 @@ namespace Editor
         private int _skipAmount = 1;
         private float _lightIntensity = 1f;
         private Color _lightColor = Color.white;
-        private Vector3 _lightRotation;
+        private Vector3 _lightRotation = new Vector3(30, -90, 0);
         private Vector3 _cameraPosition = new Vector3(10, 0, 0);
         private Transform _object;
         private PreviewRenderUtility _previewRenderUtility;
         private Dictionary<int, List<string>> tags => WeaponCreatorMethods.ListBuilder(_weapon);
         private List<string> AllCombos => WeaponCreatorMethods.GetCombos(tags);
+        private float _timer;
+        private bool _cycle;
 #pragma warning restore 0649
         
         //Wizard create window
@@ -49,8 +52,6 @@ namespace Editor
         
         private void OnGUI()
         {
-            if (!focusedWindow && !mouseOverWindow) return;
-            
             horizontalSplitView.BeginSplitView ();
             //Draw first GUI area for weapon preview
             DrawWeaponPreviewArea();
@@ -128,10 +129,6 @@ namespace Editor
             _previewRenderUtility.camera.fieldOfView = 60f;
         }
 
-        //finds directional lights. Not even sure this actually finds lights? This script doesn't exist in the scene
-        private Light[] FindDirectionalLights() =>
-            FindObjectsOfType<Light>().Where(light => light.type == LightType.Directional).ToArray();
-
         private void DrawWeaponPreviewArea()
         {
             //If we have no combinations, don't draw
@@ -152,21 +149,19 @@ namespace Editor
             DrawPreviewMesh();
             var render = _previewRenderUtility.EndPreview();
             GUI.DrawTexture(new Rect(0, 0, boundaries.width, boundaries.height), render);
-
             
             //Apply GUI components for preview area over the texture
             GUILayout.Label("Weapon Preview Area", EditorStyles.largeLabel);
-
-            if (mouseOverWindow && Event.current.type == EventType.ScrollWheel)
+            
+            if (boundaries.Contains(Event.current.mousePosition) && Event.current.type == EventType.ScrollWheel)
             {
                 if (Event.current.delta.y > 0) _previewRenderUtility.camera.transform.Translate(0, 0, 1, Space.Self);
                 else _previewRenderUtility.camera.transform.Translate(0, 0, -1, Space.Self);
                 _cameraPosition = _previewRenderUtility.camera.transform.position;
             }
-            
+
             //This check prevents crashing when parts is reduced back to zero
             if (_weapon.Parts.Count == 0) return;
-
             
             _cameraPosition = EditorGUILayout.Vector3Field("Camera Position", _cameraPosition, GUILayout.Width(300f));
             //Adjust camera position
@@ -184,8 +179,21 @@ namespace Editor
             //Skip through weapon previews
             EditorGUILayout.LabelField("Value for next/previous weapon");
             _skipAmount = EditorGUILayout.IntField(_skipAmount,GUILayout.Width(100f));
-            if (GUILayout.Button("Previous Weapon", GUILayout.Width(120f))) _comboDisplay -= _skipAmount;
-            if (GUILayout.Button("Next Weapon", GUILayout.Width(120f))) _comboDisplay += _skipAmount;
+            if (GUILayout.Button("Cycle Weapons", GUILayout.Width(120f))) _cycle = !_cycle;
+            if (!_cycle)
+            {
+                if (GUILayout.Button("Previous Weapon", GUILayout.Width(120f))) _comboDisplay -= _skipAmount;
+                if (GUILayout.Button("Next Weapon", GUILayout.Width(120f))) _comboDisplay += _skipAmount;
+            }
+            else
+            {
+                _timer += Time.deltaTime / 7.5f;
+                if (_timer < 1f) return;
+                _timer = 0f;
+                if (_comboDisplay == _comboCount) _comboDisplay = 0;
+                else _comboDisplay++;
+            }
+
         }
 
         private void DrawPreviewMesh()
@@ -402,6 +410,7 @@ namespace Editor
             //Don't continue if save window was closed without a path
             if (path.Length == 0) return;
             
+            //Creates object marked for death, used to replace null objects in parts list
             var destroyObject = new GameObject();
             destroyObject.AddComponent<ToDestroy>();
             destroyObject.AddComponent<MeshRenderer>();
@@ -528,6 +537,16 @@ namespace Editor
                         if (PrefabUtility.IsPartOfPrefabInstance(parts[i])) PrefabUtility.UnpackPrefabInstance(parts[i], PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
                         continue;
                     }
+
+                    if (parts[i].GetComponent<AudioSource>())
+                    {
+                        var audioSources = parts[i].GetComponents<AudioSource>();
+                        for (int j = 0; j < audioSources.Length; j++)
+                        {
+                            if (audioSources[j].clip) parent.AddComponent<AudioSource>().clip = audioSources[j].clip;
+                        }
+                    }
+
                     DestroyImmediate(parts[i].gameObject);
                 }
                 
@@ -537,6 +556,8 @@ namespace Editor
 
                 //create file name for path
                 var file = "/" + _fileName + "_" + g + ".prefab";
+                
+                if (File.Exists(path + file)) File.Delete(path + file);
 
                 //Save as new prefab
                 PrefabUtility.SaveAsPrefabAsset(parent, path + file);

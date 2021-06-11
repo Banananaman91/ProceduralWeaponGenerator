@@ -11,7 +11,7 @@ namespace WeaponGenerator.WeaponAsset
         [SerializeField] private String _variantName = "";
         [SerializeField] private List<GameObject> _variantPieces = new List<GameObject>();
         [SerializeField] private bool _detachable;
-    #pragma warning restore 0649
+#pragma warning restore 0649
         public string VariantName
         {
             get => _variantName;
