@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using WeaponGenerator.WeaponAsset;
 using WeaponGenerator.WeaponAssetRarity;
@@ -96,6 +97,43 @@ namespace Editor
             }
 
             return weaponRarity;
+        }
+        
+        private static BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
+                                            BindingFlags.Static | BindingFlags.Instance |
+                                            BindingFlags.DeclaredOnly;
+        
+        public static T CopyComponent<T>(T original, GameObject destination) where T : Component
+        {
+            Type type = original.GetType();
+            
+            var dst = destination.AddComponent(type) as T;
+
+            var fields = GetAllFields(type);
+            foreach (var field in fields)
+            {
+                if (field.IsStatic) continue;
+                field.SetValue(dst, field.GetValue(original));
+            }
+
+            var props = from property in type.GetProperties(flags) where property.CustomAttributes.All(attribute => attribute.AttributeType != typeof(ObsoleteAttribute)) select property;
+            foreach (var prop in props)
+            {
+                if (!prop.CanWrite || !prop.CanWrite || prop.Name == "name") continue;
+                prop.SetValue(dst, prop.GetValue(original, null), null);
+            }
+
+            return dst;
+        }
+
+        private static IEnumerable<FieldInfo> GetAllFields(Type t)
+        {
+            if (t == null)
+            {
+                return Enumerable.Empty<FieldInfo>();
+            }
+            
+            return t.GetFields(flags).Concat(GetAllFields(t.BaseType));
         }
     }
 }

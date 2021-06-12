@@ -543,7 +543,8 @@ namespace Editor
                         var audioSources = parts[i].GetComponents<AudioSource>();
                         for (int j = 0; j < audioSources.Length; j++)
                         {
-                            if (audioSources[j].clip) parent.AddComponent<AudioSource>().clip = audioSources[j].clip;
+                            UnityEditorInternal.ComponentUtility.CopyComponent(audioSources[j]);
+                            UnityEditorInternal.ComponentUtility.PasteComponentAsNew(parent);
                         }
                     }
 
