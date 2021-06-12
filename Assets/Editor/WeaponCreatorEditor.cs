@@ -193,7 +193,6 @@ namespace Editor
                 if (_comboDisplay == _comboCount) _comboDisplay = 0;
                 else _comboDisplay++;
             }
-
         }
 
         private void DrawPreviewMesh()
@@ -230,13 +229,9 @@ namespace Editor
                 meshFilters[i] = parts[i].GetComponent<MeshFilter>();
             }
 
-            // //Assign all object materials
-            // var materials = parts.Select(t => t != null ? t.GetComponent<MeshRenderer>().sharedMaterial : null).ToList();
-            //
-            // //get mesh filters of all objects
-            // var meshFilters = parts.Select(t => t != null ? t.GetComponent<MeshFilter>() : null).ToList();
-
             var weaponMono = parent.GetComponent<WeaponMainBody>();
+
+            if (!weaponMono) return;
 
             for (var i = 0; i < materials.Length; i++)
             {
