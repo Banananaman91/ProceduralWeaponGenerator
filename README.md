@@ -12,6 +12,8 @@ This is a unity editor tool.
 - ![Weapon stats composition](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorMethods.cs#L47)
 - ![Component copying](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorMethods.cs#L106)
 
+![Preview Video](https://www.youtube.com/watch?v=p9onq1j1mTk)
+
 # How to use
 
 ## WeaponMainBody
