@@ -3,16 +3,16 @@ Procedurally generated weapons providing all unique combinations of parts and va
 This is a unity editor tool.
 
 # Feature List
-- ![Editor Window split view](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/main/Assets/Editor/EditorGUISplitView.cs)
-- ![Pre-calculated unique combinations](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorMethods.cs#L34)
-- ![Output preview utility](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorEditor.cs#L132)
-- ![Combined mesh preview with live update](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorEditor.cs#L198)
-- ![Generate unique weapons with combined mesh and materials](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorEditor.cs#L391)
-- ![Rarity level calculation from weapon parts](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorMethods.cs#L78)
-- ![Weapon stats composition](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorMethods.cs#L47)
-- ![Component copying](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorMethods.cs#L106)
+- [Editor Window split view](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/main/Assets/Editor/EditorGUISplitView.cs)
+- [Pre-calculated unique combinations](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorMethods.cs#L34)
+- [Output preview utility](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorEditor.cs#L132)
+- [Combined mesh preview with live update](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorEditor.cs#L198)
+- [Generate unique weapons with combined mesh and materials](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorEditor.cs#L391)
+- [Rarity level calculation from weapon parts](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorMethods.cs#L78)
+- [Weapon stats composition](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorMethods.cs#L47)
+- [Component copying](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorMethods.cs#L106)
 
-![Preview Video](https://www.youtube.com/watch?v=p9onq1j1mTk)
+[Preview Video](https://www.youtube.com/watch?v=p9onq1j1mTk)
 
 # How to use
 
