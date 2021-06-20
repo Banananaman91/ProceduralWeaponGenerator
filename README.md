@@ -38,28 +38,28 @@ The window itself is divided into three sections.
 ### Weapon Preview Area
 The largest section found to the left of the window provides a preview area for viewing weapons that can be generated.
 You can use the scroll wheel to zoom in and out from the weapon.
-Use the Camera View drop down selection in the top left of this preview to change the viewpoint.
+Use the Camera Transform coontrols to move the camera along the respective axis. THe camera will maintain the weapon as its target view.
+Use the Light Transform controls to adjust the scene lighting for the preview.
 If desired, input your own skip value. This value is used when cycling through the weapons.
+Click the cycle button to automatically cycle through the weapons.
 Click previous weapon to skip backwards, or next to skip forwards through the weapon combinations.
-
-The lighting for this preview area matches the directional light found in your current scene. Adjust the positioning, intensity and colour of your scenes directional light to change the lighting in the preview.
 
 ## Weapon Assembly Area
 The top right section of the editor window provides the area for assigning weapon parts and variants.
 Weapon > Parts is the list of all the different parts for the weapon. This includes the weapon main body, and the first part must be the weapon main body to work.
 
-Weapon > Parts > Variant Name is automatically filled on assignment of the weapon main body. The names from your attachments will be used here. This is an assistive display that helps to inform the user which part corresponds to which attachment.
+Weapon > Parts > Variant Name is automatically filled on assignment of the weapon main body. The names from your attachments will be used here. This is an assistive display that helps to inform the user which part corresponds to which attachment and has no bearing on the output if altered.
 
-Weapon > Parts > Variant Pieces are all of the variations of each weapon part you wish to generate with. At least 1 is required per part.
+Weapon > Parts > Variant Pieces are all of the variations of each weapon part you wish to generate with. At least 1 is required per part. If desired, a slot can be left null if you want some variations of the weapons without that part.
 
 Weapon > Parts > Detachable allows all variants of this weapon part to remain separate. The weapon generator combines all parts into a singular mesh with materials, but will ignore parts set as detachable and instead keep them as children of the resulting prefab.
 
-The outputted weapons will generation combinations that consist of one variant from each weapon part.
+The outputted weapons will generate all unique combinations that consist of one variant from each weapon part.
 
 ## Weapon Creator Settings
 The bottom right section of the editor window provides an area for creator settings.
 
-File name is the name of the file you want each weapon to be name. The outputted name will be your filename_i where i corresponds to the weapon number.
+File name is the name of the file you want each weapon to be named. The outputted name will be your filename_i where i corresponds to the weapon number.
 Meshes for weapons will also generated under the same name with an additional _M. e.g. weapon_1 && weapon_1_M.
 
 Folder is the directory folder you want these weapons to save to. It will create the folder for you if required. The root of this will automatically start within your Assets folder. Providing a subfolder directory can be achieved by typing "/" e.g. Weapons/Guns will create a subfolder Guns inside of a folder Weapons.
