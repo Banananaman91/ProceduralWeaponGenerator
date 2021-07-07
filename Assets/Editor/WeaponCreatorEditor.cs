@@ -28,12 +28,13 @@ namespace Editor
         private float _lightIntensity = 1f;
         private Color _lightColor = Color.white;
         private Vector3 _lightRotation = new Vector3(30, -90, 0);
-        private Vector3 _cameraPosition = new Vector3(10, 0, 0);
+        private Vector3 _cameraPosition = new Vector3(-10, 40, 0);
         private Transform _object;
         private PreviewRenderUtility _previewRenderUtility;
         private Dictionary<int, List<string>> tags => WeaponCreatorMethods.ListBuilder(_weapon);
         private List<string> AllCombos => WeaponCreatorMethods.GetCombos(tags);
         private float _timer;
+        private float _cameraDistance = 5.0f;
         private bool _cycle;
 #pragma warning restore 0649
         
@@ -144,9 +145,9 @@ namespace Editor
             
             if (boundaries.Contains(Event.current.mousePosition) && Event.current.type == EventType.ScrollWheel)
             {
-                if (Event.current.delta.y > 0) _previewRenderUtility.camera.transform.Translate(0, 0, 1, Space.Self);
-                else _previewRenderUtility.camera.transform.Translate(0, 0, -1, Space.Self);
-                _cameraPosition = _previewRenderUtility.camera.transform.position;
+                if (Event.current.delta.y > 0) _cameraDistance += 0.25f; //_previewRenderUtility.camera.transform.Translate(0, 0, 1, Space.Self);
+                else if (Event.current.delta.y < 0 && _cameraDistance > 0.25f) _cameraDistance -= 0.25f; //_previewRenderUtility.camera.transform.Translate(0, 0, -1, Space.Self);
+                //_cameraPosition = _previewRenderUtility.camera.transform.position;
             }
 
             //This check prevents crashing when parts is reduced back to zero
@@ -154,7 +155,8 @@ namespace Editor
             
             _cameraPosition = EditorGUILayout.Vector3Field("Camera Position", _cameraPosition, GUILayout.Width(300f));
             //Adjust camera position
-            _previewRenderUtility.camera.transform.position = _cameraPosition;
+            _previewRenderUtility.camera.transform.rotation = Quaternion.Euler(_cameraPosition);
+            _previewRenderUtility.camera.transform.position = Vector3.zero + (_previewRenderUtility.camera.transform.forward * _cameraDistance);
             //Ensure camera looks at target object
             _previewRenderUtility.camera.transform.LookAt(targetPos);
             
