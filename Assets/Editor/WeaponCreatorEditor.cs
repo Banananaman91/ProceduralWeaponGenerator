@@ -52,6 +52,12 @@ namespace Editor
         
         private void OnGUI()
         {
+            //reset create button validity
+            _isValid = false;
+            _comboCount = 0;
+
+            ValidateWeapon();
+            
             horizontalSplitView.BeginSplitView ();
             //Draw first GUI area for weapon preview
             DrawWeaponPreviewArea();
@@ -65,23 +71,6 @@ namespace Editor
             verticalSplitView.EndSplitView ();
             horizontalSplitView.EndSplitView ();
             Repaint();
-            
-            //reset create button validity
-            _isValid = false;
-            _comboCount = 0;
-            
-            //if no weapon parts, don't continue
-            if (_weapon.Parts == null || _weapon.Parts.Count == 0) return;
-        
-            _comboCount = AllCombos.Count;
-            
-            //reset weapon parts names
-            foreach (var part in _weapon.Parts)
-            {
-                part.VariantName = "";
-            }
-
-            ValidateWeapon();
         }
 
         private void DrawSettingsArea()
@@ -249,7 +238,23 @@ namespace Editor
         #region WeaponCreatorValidation
         private void ValidateWeapon()
         {
-                        //if the first weapon part has nothing added, inform user of what is needed
+            //if no weapon parts, don't continue
+            if (_weapon.Parts == null || _weapon.Parts.Count == 0)
+            {
+                _errorString = "Awaiting asset parts";
+                _isValid = false;
+                return;
+            }
+        
+            _comboCount = AllCombos.Count;
+            
+            //reset weapon parts names
+            foreach (var part in _weapon.Parts)
+            {
+                part.VariantName = "";
+            }
+            
+            //if the first weapon part has nothing added, inform user of what is needed
             if (_weapon.Parts[0].VariantPieces == null || _weapon.Parts[0].VariantPieces.Count <= 0)
             {
                 _errorString = "The first weapon part must contain an object with WeaponMainBody component";
@@ -452,25 +457,22 @@ namespace Editor
                     DestroyImmediate(WeaponMono.AttachmentPoints[i].gameObject);
                 }
 
-                //Assign all object materials
-                //var materials = parts.Where((t, i) => !_weapon.Parts[i].Detachable).Select(t => t.GetComponent<MeshRenderer>().sharedMaterial).ToList();
+                //Gather all object meshes and materials for combination
                 List<Material> materials = new List<Material>();
                 List<MeshFilter> meshFilters = new List<MeshFilter>();
                 for (int i = 0; i < parts.Count; i++)
                 {
-                    if (!parts[i].GetComponent<MeshRenderer>()) continue;
                     if (_weapon.Parts[i].Detachable) continue;
-                    materials.Add(parts[i].GetComponent<MeshRenderer>().sharedMaterial);
-                    if (!parts[i].GetComponent<MeshFilter>()) continue;
+                    if (!parts[i] || !parts[i].GetComponent<MeshFilter>() || !parts[i].GetComponent<MeshFilter>().sharedMesh) continue;
                     meshFilters.Add(parts[i].GetComponent<MeshFilter>());
+                    if (!parts[i] || !parts[i].GetComponent<MeshRenderer>() || !parts[i].GetComponent<MeshRenderer>().sharedMaterial) continue;
+                    materials.Add(parts[i].GetComponent<MeshRenderer>().sharedMaterial);
                 }
 
+                //Assign all materials to parent
                 if (!parent.GetComponent<MeshRenderer>()) parent.AddComponent<MeshRenderer>();
                 parent.GetComponent<MeshRenderer>().sharedMaterials = new Material[materials.Count];
                 parent.GetComponent<MeshRenderer>().sharedMaterials = materials.ToArray();
-
-                //get mesh filters of all objects
-                //var meshFilters = parts.Where((t, i) => !_weapon.Parts[i].Detachable).Select(t => t.GetComponent<MeshFilter>()).ToList();
 
                 //Generate all combine instances for meshes
                 var combineInstance = new CombineInstance[meshFilters.Count];
@@ -510,6 +512,8 @@ namespace Editor
                 //Destroy all of the child objects as they are no longer needed
                 for (var i = parts.Count - 1; i > 0; i--)
                 {
+                    //skip if part is null
+                    if (!parts[i]) continue;
                     if (_weapon.Parts[i].Detachable)
                     {
                         if (parts[i].GetComponent<ToDestroy>())
