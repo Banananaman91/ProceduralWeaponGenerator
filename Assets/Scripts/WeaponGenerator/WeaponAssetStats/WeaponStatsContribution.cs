@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using WeaponGenerator.WeaponAssetStats.Dependencies;
 
 namespace WeaponGenerator.WeaponAssetStats
 {

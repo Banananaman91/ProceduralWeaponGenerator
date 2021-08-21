@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace WeaponGenerator.WeaponAssetStats
+namespace WeaponGenerator.WeaponAssetStats.Dependencies
 {
     [Serializable]
     public class StatDescriptor

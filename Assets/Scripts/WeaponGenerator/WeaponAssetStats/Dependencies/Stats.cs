@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace WeaponGenerator.WeaponAssetStats
+namespace WeaponGenerator.WeaponAssetStats.Dependencies
 {
     [Serializable]
     public class Stats

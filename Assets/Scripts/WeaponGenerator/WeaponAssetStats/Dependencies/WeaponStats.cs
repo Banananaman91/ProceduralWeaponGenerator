@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace WeaponGenerator.WeaponAssetStats
+namespace WeaponGenerator.WeaponAssetStats.Dependencies
 {
     public class WeaponStats : MonoBehaviour
     {

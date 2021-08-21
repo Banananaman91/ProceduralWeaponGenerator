@@ -5,8 +5,11 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using WeaponGenerator.WeaponAsset;
+using WeaponGenerator.WeaponAsset.Dependencies;
 using WeaponGenerator.WeaponAssetRarity;
+using WeaponGenerator.WeaponAssetRarity.Dependencies;
 using WeaponGenerator.WeaponAssetStats;
+using WeaponGenerator.WeaponAssetStats.Dependencies;
 
 namespace Editor
 {
@@ -18,7 +21,7 @@ namespace Editor
         private string _saveFolder;
         private string _errorString = "Error Display";
         private RarityCalculationType _rarityCalculationType = RarityCalculationType.Middle;
-        public Weapon _weapon = new Weapon();
+        public WeaponAssembly _weapon = new WeaponAssembly();
         private bool _rarityToggle;
         private bool _statToggle;
         private bool _isValid;
@@ -438,6 +441,20 @@ namespace Editor
                     throw new NullReferenceException("One weapon part requires WeaponMainBody script to be set up to create parent object");
                 }
 
+                var mainWeaponId = parent.AddComponent<WeaponId>();
+                //Generate weapon ID from part ID's
+                for (var i = 0; i < parts.Count; i++)
+                {
+                    if (!parts[i]) continue;
+                    var partId = parts[i].GetComponent<PartId>();
+                    if (!partId) continue;
+                    if (mainWeaponId)
+                    {
+                        mainWeaponId.WeaponIdentification.Add(partId.HashId);
+                        DestroyImmediate(partId);
+                    }
+                }
+
                 //get main body component
                 var WeaponMono = parent.GetComponent<WeaponMainBody>();
 
@@ -492,9 +509,10 @@ namespace Editor
 
                 //Create folder if it doesn't exist
                 if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                if (!Directory.Exists(path + "/Meshes")) Directory.CreateDirectory(path + "/Meshes");
                 
                 //Save mesh file
-                var meshFile = "/" + _fileName + "_" + g + "_M" + ".asset";
+                var meshFile = "/Meshes/" + _fileName + "_" + g + "_M" + ".asset";
                 AssetDatabase.CreateAsset(finalMesh, path + meshFile);
 
                 if (_statToggle)

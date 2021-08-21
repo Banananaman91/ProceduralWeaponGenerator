@@ -1,4 +1,4 @@
-﻿namespace WeaponGenerator.WeaponAssetRarity
+﻿namespace WeaponGenerator.WeaponAssetRarity.Dependencies
 {
     public enum RarityCalculationType
     {

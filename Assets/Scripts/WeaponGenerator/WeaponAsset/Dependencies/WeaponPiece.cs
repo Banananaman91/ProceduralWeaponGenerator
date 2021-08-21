@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace WeaponGenerator.WeaponAsset
+namespace WeaponGenerator.WeaponAsset.Dependencies
 {
     [Serializable]
     public class WeaponPiece

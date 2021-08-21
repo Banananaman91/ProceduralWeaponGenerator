@@ -4,14 +4,17 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using WeaponGenerator.WeaponAsset;
+using WeaponGenerator.WeaponAsset.Dependencies;
 using WeaponGenerator.WeaponAssetRarity;
+using WeaponGenerator.WeaponAssetRarity.Dependencies;
 using WeaponGenerator.WeaponAssetStats;
+using WeaponGenerator.WeaponAssetStats.Dependencies;
 
 namespace Editor
 {
     public static class WeaponCreatorMethods
     {
-        public static Dictionary<int, List<string>> ListBuilder(Weapon weapon)
+        public static Dictionary<int, List<string>> ListBuilder(WeaponAssembly weapon)
         {
             Dictionary<int, List<string>> tags = new Dictionary<int, List<string>>();
             //Build dictionary of items, each entry corresponds to each weapon part with the string forming each index to be used when generating combinations

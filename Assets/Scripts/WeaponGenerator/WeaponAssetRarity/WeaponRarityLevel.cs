@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using WeaponGenerator.WeaponAssetRarity.Dependencies;
 
 namespace WeaponGenerator.WeaponAssetRarity
 {

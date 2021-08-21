@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 
-namespace WeaponGenerator.WeaponAsset
+namespace WeaponGenerator.WeaponAsset.Dependencies
 {
     [Serializable]
     public class Weapon
