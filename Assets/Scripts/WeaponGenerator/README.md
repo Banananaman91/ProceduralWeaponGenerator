@@ -1,11 +1,16 @@
 # How to use
 
 ## WeaponMainBody
-All weapons must be build from a main body part. This acts as the origin point for part assembling.
+All weapons must be built from a main body part. This acts as the origin point for part assembling.
 Assign WeaponMainBody component to your intended main body part.
 On your main body part, setup child transform objects for the attachment points of your intended weapon parts.
-Name these transform objects to the parts name. The system will use this naming to display.
+Name these transform objects to the parts name. The system will use this naming to display part sections in the editor for ease of use.
 On the WeaponMainBody component, attach these transforms to the parts list. The order of this will correspond to the order that your parts will be assigned.
+
+## WeaponId & PartId
+Created weapons can use an id system to assist with identification of weapons that are created with specific parts.
+Assign a PartId Component to all weapon parts, including the main weapon body. This component creates a hash id from the parts name.
+On generation, the outputted weapon will be assigned a WeaponId component containing a list of the different weapon part ID's.
 
 ## WeaponStatsContribution
 When using the stats feature all weapon parts must contain a WeaponStatsContribution component. With this, simply fill out the stat types and values. These will all be added to the main weapon upon completion, where a new WeaponStats component will be added with all the compiled stats for that weapon based on the generated parts.
