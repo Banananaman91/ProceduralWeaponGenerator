@@ -11,6 +11,8 @@ This is a unity editor tool.
 - [Rarity level calculation from weapon parts](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorMethods.cs#L78)
 - [Weapon stats composition](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorMethods.cs#L47)
 - [Component copying](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorMethods.cs#L106)
+- [Weapon Part Identification](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/main/Assets/Scripts/WeaponGenerator/WeaponAsset/PartId.cs)
+- [Compiled Weapon Identification](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/main/Assets/Scripts/WeaponGenerator/WeaponAsset/WeaponId.cs)
 
 [Preview Video](https://www.youtube.com/watch?v=p9onq1j1mTk)
 
@@ -22,6 +24,11 @@ Assign WeaponMainBody component to your intended main body part.
 On your main body part, setup child transform objects for the attachment points of your intended weapon parts.
 Name these transform objects to the parts name. The system will use this naming to display.
 On the WeaponMainBody component, attach these transforms to the parts list. The order of this will correspond to the order that your parts will be assigned.
+
+## WeaponId & PartId
+Created weapons can use an id system to assist with identification of weapons that are created with specific parts.
+Assign a PartId Component to all weapon parts, including the main weapon body. This component creates a hash id from the parts name.
+On generation, the outputted weapon will be assigned a WeaponId component containing a list of the different weapon part ID's.
 
 ## WeaponStatsContribution
 When using the stats feature all weapon parts must contain a WeaponStatsContribution component. With this, simply fill out the stat types and values. These will all be added to the main weapon upon completion, where a new WeaponStats component will be added with all the compiled stats for that weapon based on the generated parts.
