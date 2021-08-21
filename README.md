@@ -16,6 +16,8 @@ This is a unity editor tool.
 
 [Preview Video](https://www.youtube.com/watch?v=p9onq1j1mTk)
 
+# [Install through release package](https://github.com/Banananaman91/ProceduralWeaponGenerator/releases)
+
 # How to use
 
 ## WeaponMainBody
