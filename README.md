@@ -2,6 +2,8 @@
 Procedurally generated weapons providing all unique combinations of parts and variants, outputting one complete mesh prefab with original materials.
 This is a unity editor tool.
 
+This project also contains [Unity Runtime Preview Generator by Yasirkula](https://github.com/yasirkula/UnityRuntimePreviewGenerator)
+
 # Feature List
 - [Editor Window split view](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/main/Assets/Editor/EditorGUISplitView.cs)
 - [Pre-calculated unique combinations](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorMethods.cs#L34)
