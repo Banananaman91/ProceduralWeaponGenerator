@@ -30,6 +30,7 @@ namespace Editor
         private int _skipAmount = 1;
         private float _lightIntensity = 1f;
         private Color _lightColor = Color.white;
+        private CameraClearFlag _cameraClearFlag = CameraClearFlag.Skybox;
         private Vector3 _lightRotation = new Vector3(30, -90, 0);
         private Vector3 _cameraPosition = new Vector3(-10, 40, 0);
         private Transform _object;
@@ -113,8 +114,19 @@ namespace Editor
             _previewRenderUtility = new PreviewRenderUtility();
             //Reset rotation
             _previewRenderUtility.camera.transform.rotation = Quaternion.Euler(0, 0, 0);
-            //Set background to skybox
-            _previewRenderUtility.camera.clearFlags = CameraClearFlags.Skybox;
+            //Set background
+            switch (_cameraClearFlag)
+            {
+                case CameraClearFlag.SolidColour:
+                    _previewRenderUtility.camera.clearFlags = CameraClearFlags.SolidColor;
+                    break;
+                case CameraClearFlag.Skybox:
+                    _previewRenderUtility.camera.clearFlags = CameraClearFlags.Skybox;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+            
             //Ensure clipping planes are suitable
             _previewRenderUtility.camera.nearClipPlane = 0.01f;
             _previewRenderUtility.camera.farClipPlane = 100f;
@@ -129,9 +141,21 @@ namespace Editor
             //Initialize render utility with default settings if we have none
             if (_previewRenderUtility == null) InitializeRenderUtility();
             //Adjust lighting
-            _previewRenderUtility.lights[0].transform.rotation = Quaternion.Euler(_lightRotation);
-            _previewRenderUtility.lights[0].color = _lightColor;
-            _previewRenderUtility.lights[0].intensity = _lightIntensity;
+            switch (_cameraClearFlag)
+            {
+                case CameraClearFlag.SolidColour:
+                    _previewRenderUtility.camera.backgroundColor = _lightColor;
+                    _previewRenderUtility.lights[0].color = Color.white;
+                    break;
+                case CameraClearFlag.Skybox:
+                    _previewRenderUtility.lights[0].transform.rotation = Quaternion.Euler(_lightRotation);
+                    _previewRenderUtility.lights[0].color = _lightColor;
+                    _previewRenderUtility.lights[0].intensity = _lightIntensity;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
 
             //find target, if we have no object then look at zero
             var targetPos = _object ? _object.position : Vector3.zero;
@@ -155,6 +179,9 @@ namespace Editor
 
             //This check prevents crashing when parts is reduced back to zero
             if (_weapon.Parts.Count == 0) return;
+
+            _cameraClearFlag =
+                (CameraClearFlag) EditorGUILayout.EnumPopup("Camera Clear Flag", _cameraClearFlag, GUILayout.Width(300f));
             
             _cameraPosition = EditorGUILayout.Vector3Field("Camera Position", _cameraPosition, GUILayout.Width(300f));
             //Adjust camera position
@@ -162,14 +189,27 @@ namespace Editor
             _previewRenderUtility.camera.transform.position = Vector3.zero + (_previewRenderUtility.camera.transform.forward * _cameraDistance);
             //Ensure camera looks at target object
             _previewRenderUtility.camera.transform.LookAt(targetPos);
-            
-            //Light controls
-            _lightRotation = EditorGUILayout.Vector3Field("Light Rotation", _lightRotation, GUILayout.Width(300f));
-            GUILayout.Label("Light Intensity");
-            _lightIntensity = EditorGUILayout.FloatField(_lightIntensity, GUILayout.Width(50f));
-            GUILayout.Label("Light Colour");
-            _lightColor = EditorGUILayout.ColorField(_lightColor, GUILayout.Width(100f));
-            
+
+            switch (_cameraClearFlag)
+            {
+                //Light controls
+                case CameraClearFlag.Skybox:
+                    _previewRenderUtility.camera.clearFlags = CameraClearFlags.Skybox;
+                    _lightRotation = EditorGUILayout.Vector3Field("Light Rotation", _lightRotation, GUILayout.Width(300f));
+                    GUILayout.Label("Light Intensity");
+                    _lightIntensity = EditorGUILayout.FloatField(_lightIntensity, GUILayout.Width(50f));
+                    GUILayout.Label("Light Colour");
+                    _lightColor = EditorGUILayout.ColorField(_lightColor, GUILayout.Width(100f));
+                    break;
+                case CameraClearFlag.SolidColour:
+                    _previewRenderUtility.camera.clearFlags = CameraClearFlags.SolidColor;
+                    GUILayout.Label("Background Colour");
+                    _lightColor = EditorGUILayout.ColorField(_lightColor, GUILayout.Width(100f));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
             //Skip through weapon previews
             EditorGUILayout.LabelField("Value for next/previous weapon");
             _skipAmount = EditorGUILayout.IntField(_skipAmount,GUILayout.Width(100f));
