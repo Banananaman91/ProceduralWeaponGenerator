@@ -13,6 +13,8 @@ This is a unity editor tool.
 - [Component copying](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/3bcb35888981c18fe0a70db5b5e22b03c90ad402/Assets/Editor/WeaponCreatorMethods.cs#L106)
 - [Weapon Part Identification](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/main/Assets/Scripts/WeaponGenerator/WeaponAsset/PartId.cs)
 - [Compiled Weapon Identification](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/main/Assets/Scripts/WeaponGenerator/WeaponAsset/WeaponId.cs)
+- [Integrated Thumbnail Creation by Yasirkula](https://github.com/yasirkula/UnityRuntimePreviewGenerator)
+- -[Thumbnail Editor Window preview thumbnails and edit settings](https://github.com/Banananaman91/ProceduralWeaponGenerator/blob/main/Assets/Editor/ThumbnailCreator.cs)
 
 [Preview Video](https://www.youtube.com/watch?v=p9onq1j1mTk)
 
