@@ -1,13 +1,15 @@
+using System;
 using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace WeaponGenerator.WeaponAsset
 {
     public class PartId : MonoBehaviour
     {
         public string HashId => GetHashString(name);
-        
+
         private static byte[] GetHash(string inputString)
         {
             HashAlgorithm algorithm = SHA256.Create();

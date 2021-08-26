@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 8785911526999006919}
   - component: {fileID: 5639078954859368802}
   - component: {fileID: 7613052764273698216}
+  - component: {fileID: -2787862631909861018}
   m_Layer: 0
   m_Name: Magazine_4
   m_TagString: Untagged
@@ -79,3 +80,15 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &-2787862631909861018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8261294240541787261}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 927194b5c7f4a2548b37f8bb67d9b5c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -138,5 +138,12 @@ namespace Editor
             
             return t.GetFields(flags).Concat(GetAllFields(t.BaseType));
         }
+
+        public static void AddThumbnailComponent(GameObject go, Sprite sprite)
+        {
+            var thumbComp = go.GetComponent<ThumbnailComponent>();
+            if (thumbComp) thumbComp.Thumbnail = sprite;
+            else go.AddComponent<ThumbnailComponent>().Thumbnail = sprite;
+        }
     }
 }

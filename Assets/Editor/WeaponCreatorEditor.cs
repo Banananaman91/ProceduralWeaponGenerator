@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 using WeaponGenerator.WeaponAsset;
 using WeaponGenerator.WeaponAsset.Dependencies;
 using WeaponGenerator.WeaponAssetRarity;
@@ -140,12 +141,15 @@ namespace Editor
             if (_comboCount == 0) return;
             //Initialize render utility with default settings if we have none
             if (_previewRenderUtility == null) InitializeRenderUtility();
+            
             //Adjust lighting
             switch (_cameraClearFlag)
             {
                 case CameraClearFlag.SolidColour:
                     _previewRenderUtility.camera.backgroundColor = _lightColor;
                     _previewRenderUtility.lights[0].color = Color.white;
+                    _previewRenderUtility.lights[0].transform.rotation = Quaternion.Euler(_lightRotation);
+                    _previewRenderUtility.lights[0].intensity = _lightIntensity;
                     break;
                 case CameraClearFlag.Skybox:
                     _previewRenderUtility.lights[0].transform.rotation = Quaternion.Euler(_lightRotation);
@@ -155,8 +159,7 @@ namespace Editor
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-
+            
             //find target, if we have no object then look at zero
             var targetPos = _object ? _object.position : Vector3.zero;
             //get screen boundaries. We use half the width as the split view covers half of the preview by default.

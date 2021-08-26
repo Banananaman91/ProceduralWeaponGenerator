@@ -14,6 +14,7 @@ namespace Editor
 		Direction splitDirection;
 		float splitNormalizedPosition;
 		bool resize;
+		public bool Resizable = true;
 		public Vector2 scrollPosition;
 		Rect availableRect;
 
@@ -42,7 +43,7 @@ namespace Editor
 
 		public void Split() {
 			GUILayout.EndScrollView();
-			ResizeSplitFirstView ();
+			if (Resizable) ResizeSplitFirstView ();
 		}
 
 		public void EndSplitView() {
